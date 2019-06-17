@@ -125,11 +125,11 @@
                      await fs.writeFile(`${self.attachmentOptions.directory}${att.filename}`, att.content, (error) =>{
                        self.emit('error', error);
                      });
-                     self.emit('attachment', att, `${self.attachmentOptions.directory}${att.filename}`, seqno);
+                     self.emit('attachment', att, `${self.attachmentOptions.directory}${att.filename}`, seqno, msg.attributes.uid);
                    }
                    else
                    {
-                     self.emit('attachment', att, null, seqno);
+                     self.emit('attachment', att, null, seqno, msg.attributes.uid);
                    }
                  }
                }
