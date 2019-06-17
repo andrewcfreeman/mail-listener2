@@ -17,7 +17,8 @@
      super();
      this.markSeen = !! options.markSeen;
      this.mailbox = options.mailbox || 'INBOX';
-     this.addLabelsOnRead = options.addLabelsOnRead || [];
+     this.addLabelsOnSuccess = options.addLabelsOnSuccess || [];
+     this.addLabelsOnFailure = options.addLabelsOnFailure || [];
      if ('string' === typeof options.searchFilter) 
      {
        this.searchFilter = [options.searchFilter];
@@ -107,16 +108,12 @@
              bodies: '',
              markSeen: self.markSeen
            });
-           self.imap.addLabels(result, self.addLabelsOnRead, (err) => {
-             self.emit(err);
-           });
            f.on('message', (msg, seqno) => {  
              msg.on('body', async (stream, info) => {
                let parsed = await simpleParser(stream);
                self.emit('mail', parsed, seqno);
                self.emit('headers', parsed.headers, seqno);
                self.emit('body', {html: parsed.html, text: parsed.text, textAsHtml: parsed.textAsHtml}, seqno);
-               console.log(parsed);
                if (parsed.attachments.length>0)
                {
                  for (let att of parsed.attachments)
@@ -126,15 +123,16 @@
                      await fs.writeFile(`${self.attachmentOptions.directory}${att.filename}`, att.content, (error) =>{
                        self.emit('error', error);
                      });
-                     self.emit('attachment', att, `${self.attachmentOptions.directory}${att.filename}`, seqno);
+                     self.emit('attachment', att, `${self.attachmentOptions.directory}${att.filename}`, seqno, result);
                    }
                    else
                    {
-                     self.emit('attachment', att, null, seqno);
+                     self.emit('attachment', att, null, seqno, result);
                    }
                  }
                }
              });
+             
            });
            f.once('error', (error) => {
              self.emit('error', error);
@@ -147,6 +145,20 @@
          });
        }
      });
+   }
+
+   addLabel(uid, success) {
+     let self = this;
+    if(success) {
+      self.imap.addLabels(uid, self.addLabelsOnSuccess, (err) => {
+        self.emit(err);
+      });
+    } else {
+      self.imap.addLabels(uid, self.addLabelsOnFailure, (err) => {
+        self.emit(err);
+      });
+    }
+    
    }
  };
  module.exports = MailListener;
