@@ -116,6 +116,7 @@
                self.emit('mail', parsed, seqno);
                self.emit('headers', parsed.headers, seqno);
                self.emit('body', {html: parsed.html, text: parsed.text, textAsHtml: parsed.textAsHtml}, seqno);
+               console.log(parsed);
                if (parsed.attachments.length>0)
                {
                  for (let att of parsed.attachments)
@@ -125,11 +126,11 @@
                      await fs.writeFile(`${self.attachmentOptions.directory}${att.filename}`, att.content, (error) =>{
                        self.emit('error', error);
                      });
-                     self.emit('attachment', att, `${self.attachmentOptions.directory}${att.filename}`, seqno, msg.attributes.uid);
+                     self.emit('attachment', att, `${self.attachmentOptions.directory}${att.filename}`, seqno);
                    }
                    else
                    {
-                     self.emit('attachment', att, null, seqno, msg.attributes.uid);
+                     self.emit('attachment', att, null, seqno);
                    }
                  }
                }
