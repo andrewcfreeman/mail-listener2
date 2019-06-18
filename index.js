@@ -121,7 +121,7 @@
                  {
                    if (self.attachments)
                    {
-                     await fs.writeFile(`${self.attachmentOptions.directory}${att.filename}`, att.content, (error) =>{
+                     await fs.writeFileSync(`${self.attachmentOptions.directory}${att.filename}`, att.content, (error) =>{
                        self.emit('error', error);
                      });
                      self.emit('attachment', att, `${self.attachmentOptions.directory}${att.filename}`, seqno, result);
