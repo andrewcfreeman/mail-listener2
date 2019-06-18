@@ -17,6 +17,7 @@
      super();
      this.markSeen = !! options.markSeen;
      this.mailbox = options.mailbox || 'INBOX';
+     this.processedMailbox = options.processedMailbox || 'INBOX';
      this.addLabelsOnSuccess = options.addLabelsOnSuccess || [];
      this.addLabelsOnFailure = options.addLabelsOnFailure || [];
      if ('string' === typeof options.searchFilter) 
@@ -159,6 +160,26 @@
       });
     }
     
+   }
+
+   moveToProcessedMailbox(uid) {
+    let self = this;
+
+    self.imap.status(self.processedMailbox, (err, box) => {
+      if (box == null) {
+        self.imap.addBox(self.processedMailbox, (err) => {
+          self.emit(err);
+          console.log('added box')
+          console.log(err);
+        }
+        );
+      }
+
+      console.log('trying to move');
+      self.imap.move(uid, self.processedMailbox, (err) => {
+        self.emit(err);
+      });
+    });
    }
  };
  module.exports = MailListener;
