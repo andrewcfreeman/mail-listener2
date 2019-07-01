@@ -49,8 +49,8 @@
        authTimeout: options.authTimeout || null,
        debug: options.debug || null
      });
-     this.imap.once('ready', this.imapReady.bind(this));
-     this.imap.once('close', this.imapClose.bind(this));
+     this.imap.on('ready', this.imapReady.bind(this));
+     this.imap.on('close', this.imapClose.bind(this));
      this.imap.on('error', this.imapError.bind(this));
    }
  
@@ -60,6 +60,16 @@
  
    stop() {
      this.imap.connect();
+   }
+
+   destroy() {
+     this.emit('server:destroying');  
+     this.imap.destroy();
+   }
+
+   end() {
+    this.emit('server:ending');  
+    this.imap.end();
    }
  
    imapReady() {
